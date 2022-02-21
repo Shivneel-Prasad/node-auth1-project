@@ -2,6 +2,9 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const morgan = require("morgan");
+const session = require('express-session')
+const usersRouter = require('./users/users-router')
+const authRouter = require('./auth/auth-router')
 
 /**
   Do what needs to be done to support sessions with the `express-session` package!
@@ -23,8 +26,22 @@ server.use(express.json());
 server.use(cors());
 server.use(morgan('dev'));
 
-// exporting user & auth router
+// express session configuratio
+server.use(session({
+  name: 'chocolate-chip', 
+  secret: 'making it long and random', 
+  cookie: {
+      maxAge: 1000 * 60 * 60,
+      secure: false, 
+      httpOnly: false,
+    }, 
+    resave: false, 
+    saveUninitialized: false, 
+  }))
 
+// exporting user & auth router
+server.use('/api/users', usersRouter)
+server.use('/api/auth', authRouter)
 
 server.get("/", (req, res) => {
   res.json({ api: "up" });
