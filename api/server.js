@@ -1,6 +1,7 @@
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
+const morgan = require("morgan");
 
 /**
   Do what needs to be done to support sessions with the `express-session` package!
@@ -20,10 +21,21 @@ const server = express();
 server.use(helmet());
 server.use(express.json());
 server.use(cors());
+server.use(morgan('dev'));
+
+// exporting user & auth router
+
 
 server.get("/", (req, res) => {
   res.json({ api: "up" });
 });
+
+server.use('*', (req, res) => {
+  res.status(404).json({
+    status: 404,
+    message: 'Not Found',
+  })
+})
 
 server.use((err, req, res, next) => { // eslint-disable-line
   res.status(err.status || 500).json({
