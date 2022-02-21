@@ -1,3 +1,4 @@
+const db = require('../../data/db-config')
 const Users = require('../users/users-model')
 
 function restricted(req, res, next) {
@@ -15,9 +16,9 @@ function restricted(req, res, next) {
 
 const checkUsernameFree = async (req, res, next) => {
   try {
-    const userData = await Users.findBy(req.body)
+    const userData = await Users.findBy({username: req.body.username})
     console.log(Users.username)
-    if (userData.username === req.body) {
+    if (userData.length) {
       res.status(422).json({ message: 'Username taken' })
     } else {
       next()
@@ -29,7 +30,7 @@ const checkUsernameFree = async (req, res, next) => {
 
 const checkUsernameExists = async (req, res, next) => {
   try {
-    const existing = await Users.findBy(req.body)
+    const existing = await Users.findBy({username: req.body.username})
       if (!existing) {
         res.status(401).json({
           message: 'Invalid credentials'
@@ -45,15 +46,14 @@ const checkUsernameExists = async (req, res, next) => {
 
 async function checkPasswordLength(req, res, next) {
   try {
-    const { password } = req.body
-    if (!password || password.length <= 3) {
+    if(!req.body.password || req.body.password.length <= 3) {
       res.status(422).json({
         message: 'Password must be longer than 3 chars'
-      })
+      });
     } else {
-      next()
+      next();
     }
-  } catch (err) {
+  } catch(err) {
     res.status(500).json(`Server error: ${err}`);
   }
 }

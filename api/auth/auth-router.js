@@ -5,18 +5,22 @@ const { checkUsernameFree, checkUsernameExists, checkPasswordLength } = require(
 const bcrypt = require('bcryptjs')
 const Model = require('../users/users-model')
 
-  router.post('/register', checkUsernameFree, checkPasswordLength, (req, res, next) => {
-    const { username, password } = req.body
-    const hash = bcrypt.hashSync(password, 8)
-    const user = { username, password: hash }
-    Model.add(user)
-      .then(addUser => {
-        res.status(201).json(addUser)
-      })
-      .catch(next)
+  router.post('/register', checkUsernameFree, checkPasswordLength, async (req, res, next) => {
+    try {
+      // gets credentials from the req.body
+      const { username, password } = req.body
+      // this will hash the password with bcrypt
+      const hash = bcrypt.hashSync(password, 8)
+      // it stores new user information into the database
+      const newUser = { username, password: hash }
+      const addUser = await Model.add(newUser)
+      res.status(201).json(`Welcome, ${addUser.username}`)      
+    } catch (err) {
+      next(err)
+    }
   })
 
-router.post('/login', checkUsernameExists, async (req, res) => {
+router.post('/login', checkUsernameExists, async (req, res, next) => {
   console.log('login is working!!')
     try {
       const { username, password } = req.body
@@ -34,10 +38,7 @@ router.post('/login', checkUsernameExists, async (req, res) => {
         });
       }
     } catch (err) {
-      res.status(500).json({ 
-        message: "Invalid Credentials", 
-        error: err.message 
-      })
+      next(err)
     }
 })
 

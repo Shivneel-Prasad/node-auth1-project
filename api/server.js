@@ -28,7 +28,7 @@ server.use(morgan('dev'));
 
 // express session configuratio
 server.use(session({
-  name: 'chocolate-chip', 
+  name: 'chocolatechip', 
   secret: 'making it long and random', 
   cookie: {
       maxAge: 1000 * 60 * 60,
